@@ -1,0 +1,5 @@
+C:\Users\Mike\Documents\Arduino\IEEE Hackathon\RawDataFromArduino\RawDataFromArduino\bin\Debug\RawDataFromArduino.exe.config
+C:\Users\Mike\Documents\Arduino\IEEE Hackathon\RawDataFromArduino\RawDataFromArduino\bin\Debug\RawDataFromArduino.exe
+C:\Users\Mike\Documents\Arduino\IEEE Hackathon\RawDataFromArduino\RawDataFromArduino\bin\Debug\RawDataFromArduino.pdb
+C:\Users\Mike\Documents\Arduino\IEEE Hackathon\RawDataFromArduino\RawDataFromArduino\obj\Debug\RawDataFromArduino.exe
+C:\Users\Mike\Documents\Arduino\IEEE Hackathon\RawDataFromArduino\RawDataFromArduino\obj\Debug\RawDataFromArduino.pdb
