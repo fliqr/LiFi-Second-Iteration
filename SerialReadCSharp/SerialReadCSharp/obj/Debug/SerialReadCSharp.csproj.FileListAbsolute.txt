@@ -4,3 +4,9 @@ C:\Users\Mike\Documents\Arduino\IEEE Hackathon\SerialReadCSharp\SerialReadCSharp
 C:\Users\Mike\Documents\Arduino\IEEE Hackathon\SerialReadCSharp\SerialReadCSharp\obj\Debug\SerialReadCSharp.csprojResolveAssemblyReference.cache
 C:\Users\Mike\Documents\Arduino\IEEE Hackathon\SerialReadCSharp\SerialReadCSharp\obj\Debug\SerialReadCSharp.exe
 C:\Users\Mike\Documents\Arduino\IEEE Hackathon\SerialReadCSharp\SerialReadCSharp\obj\Debug\SerialReadCSharp.pdb
+C:\Users\Mike\Documents\Arduino\IEEE Hackathon\Fliqr\SerialReadCSharp\SerialReadCSharp\bin\Debug\SerialReadCSharp.exe.config
+C:\Users\Mike\Documents\Arduino\IEEE Hackathon\Fliqr\SerialReadCSharp\SerialReadCSharp\obj\Debug\SerialReadCSharp.exe
+C:\Users\Mike\Documents\Arduino\IEEE Hackathon\Fliqr\SerialReadCSharp\SerialReadCSharp\obj\Debug\SerialReadCSharp.pdb
+C:\Users\Mike\Documents\Arduino\IEEE Hackathon\Fliqr\SerialReadCSharp\SerialReadCSharp\bin\Debug\SerialReadCSharp.exe
+C:\Users\Mike\Documents\Arduino\IEEE Hackathon\Fliqr\SerialReadCSharp\SerialReadCSharp\bin\Debug\SerialReadCSharp.pdb
+C:\Users\Mike\Documents\Arduino\IEEE Hackathon\Fliqr\SerialReadCSharp\SerialReadCSharp\obj\Debug\SerialReadCSharp.csprojResolveAssemblyReference.cache
