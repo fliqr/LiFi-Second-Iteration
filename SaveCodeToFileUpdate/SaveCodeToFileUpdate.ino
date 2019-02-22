@@ -2,7 +2,7 @@ int solarInput;
 int intervalCounter;
 String inputString = "";
 int inputStringIndex = 0;
-int cutoffValue = 600;            //This value changes depending on the light of the room
+int cutoffValue = 750;            //This value changes depending on the light of the room
 int startBit = 0;
 int codeIsDone = false;
 

@@ -29,12 +29,12 @@ namespace SerialReadCSharp
         public static String ConvertFromBinary(String binaryCodeFromArduino)
         {
             String data = "";
-            //Console.WriteLine(binaryCodeFromArduino);
+            Console.WriteLine(binaryCodeFromArduino);
+            binaryCodeFromArduino = binaryCodeFromArduino.Substring(5);
 
             while(binaryCodeFromArduino.Length > 8)
             {
-                data += Convert.ToInt32(binaryCodeFromArduino.Substring(0,8)).ToString();
-                //Console.WriteLine(binaryCodeFromArduino);
+                data += char.ConvertFromUtf32(Convert.ToInt32(binaryCodeFromArduino.Substring(0,8), 2));
 
                 binaryCodeFromArduino = binaryCodeFromArduino.Substring(8);
             }
@@ -65,19 +65,21 @@ namespace SerialReadCSharp
         static void Main(string[] args)
         {
 
-            //var path = "C:\\Users\\Mike\\Documents\\Arduino\\IEEE Hackathon\\Data.txt";
-            var path = "D:\\Users\\mike\\Documents\\[school]\\Indipendant projects\\Data.txt";
+            var path = "C:\\Users\\Mike\\Documents\\Arduino\\IEEE Hackathon\\Data.txt";
+            //var path = "D:\\Users\\mike\\Documents\\[school]\\Indipendant projects\\Data.txt";
             SerialPort arduinoOut = new SerialPort();
             TextWriter dataFile = new StreamWriter(path, true);
             arduinoOut.BaudRate = 115200;
-            arduinoOut.PortName = "COM9";
+            arduinoOut.PortName = "COM7";
             arduinoOut.Open();
             String fullByte = "";
             String dataFromArduino = "";
             //dataFile = new StreamWriter(path, true);                            //fills the dataFile object with the path
 
 
-            
+
+       
+
             //assuming this code reads serial port more often than arduino sends it
             while (true)
             {
