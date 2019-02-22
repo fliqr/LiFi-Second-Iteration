@@ -26,23 +26,26 @@ namespace SerialReadCSharp
     class Program
     {
 
-        public static Byte[] GetBytesFromBinaryString(String binary)
+        public static String ConvertFromBinary(String binaryCodeFromArduino)
         {
-            var list = new List<Byte>();
+            String data = "";
+            //Console.WriteLine(binaryCodeFromArduino);
 
-            for (int i = 0; i < binary.Length; i += 8)
+            while(binaryCodeFromArduino.Length > 8)
             {
-                String t = binary.Substring(i, 8);
+                data += Convert.ToInt32(binaryCodeFromArduino.Substring(0,8)).ToString();
+                //Console.WriteLine(binaryCodeFromArduino);
 
-                list.Add(Convert.ToByte(t, 2));
+                binaryCodeFromArduino = binaryCodeFromArduino.Substring(8);
             }
-
-            return list.ToArray();
+            
+            Console.WriteLine(data);
+            return data;
         }
 
         public static void AddToFile(TextWriter dataFile, String data)
         {
-            Console.WriteLine("   " + data.ToString());
+            //Console.WriteLine("   " + data.ToString());
             try
             {
                 dataFile.Write(data);
@@ -59,61 +62,65 @@ namespace SerialReadCSharp
         }
 
 
-       static void Main(string[] args)
+        static void Main(string[] args)
         {
-            var path = "C:\\Users\\Mike\\Documents\\Arduino\\IEEE Hackathon\\Data.txt";
+
+            //var path = "C:\\Users\\Mike\\Documents\\Arduino\\IEEE Hackathon\\Data.txt";
+            var path = "D:\\Users\\mike\\Documents\\[school]\\Indipendant projects\\Data.txt";
             SerialPort arduinoOut = new SerialPort();
             TextWriter dataFile = new StreamWriter(path, true);
             arduinoOut.BaudRate = 115200;
-            arduinoOut.PortName = "COM7";
+            arduinoOut.PortName = "COM9";
             arduinoOut.Open();
             String fullByte = "";
-            String bitFromArduino = "";
-            var data = "";
-            dataFile = new StreamWriter(path, true);                            //fills the dataFile object with the path
+            String dataFromArduino = "";
+            //dataFile = new StreamWriter(path, true);                            //fills the dataFile object with the path
 
 
+            
             //assuming this code reads serial port more often than arduino sends it
             while (true)
             {
+                dataFromArduino = arduinoOut.ReadExisting();
+                fullByte += dataFromArduino;
+                if (dataFromArduino.IndexOf("D") != -1) {
+                    AddToFile(dataFile, ConvertFromBinary(fullByte.Substring(0, fullByte.IndexOf("D"))));
+                    fullByte = fullByte.Substring(fullByte.IndexOf("D") + 1);
+                }
 
-                bitFromArduino = arduinoOut.ReadExisting();                            //reads from serial
-                if (bitFromArduino == "D")                                             //if the input is the string D, then it is the start of a new thing
+
+
+                /*
+                    dataFromArduino = arduinoOut.ReadExisting();                            //reads from serial
+                if (dataFromArduino.IndexOf("D") != -1)                              //if the input is the string D, then it is the start of a new thing
                 {
-                    bitFromArduino = "";                                                //one single bit (1/0) from the serial port 
-                    fullByte = "";                                                      //the compilataion of 8 bits from the arduino
-                    while (bitFromArduino != "D")                                       //Keep running the loop until the end of the message "D" is received
+                    fullByte = dataFromArduino.Substring(dataFromArduino.IndexOf("D"),dataFromArduino.Length); //the compilataion of 8 bits from the arduino
+                                                                                        //That code is needed because dataFromArduino will sometimes be multaple bits so the fullByte must be a compilation of them
+                    dataFromArduino = "";                                                //one single bit (1/0) from the serial port 
+
+                    while (dataFromArduino.IndexOf("D") != -1)                                       //Keep running the loop until the end of the message "D" is received
                     {
                         //code to continuously write to the file.
-                        bitFromArduino = arduinoOut.ReadExisting();                     //puts the actual serial value from the arduino in bitFromArduino
+                        dataFromArduino = arduinoOut.ReadExisting();                     //puts the actual serial value from the arduino in dataFromArduino
                         if (fullByte.Length < 8)                                        //if there are less than 8 elements in the list fullByte than the Serial data from the arduino will be added
                         {
-                            fullByte += bitFromArduino;
-                            Console.Write(bitFromArduino);
-                        } else {                                      //once the byte has 8 bits, translate it into an ASCII character and save that to a file
-                            data = Encoding.ASCII.GetString(GetBytesFromBinaryString(fullByte.Substring(0,8)));
-                            if(fullByte.Length > 8)
+                            fullByte += dataFromArduino;
+                            Console.Write(dataFromArduino);
+                        }
+                        else
+                        {                                                        //once the byte has 8 bits, translate it into an ASCII character and save that to a file
+                            
+                            while (fullByte.Length >= 8)
                             {
-                                while (fullByte.Length > 8)
-                                {
-                                    fullByte = fullByte.Substring(8, fullByte.Length);
-                                    data += Encoding.ASCII.GetString(GetBytesFromBinaryString(fullByte.Substring(0, 8)));
-                                }
-                            } else
-                            {
-                                fullByte = "";
+                                data += Encoding.ASCII.GetString(GetBytesFromBinaryString(fullByte.Substring(0, 8)));
+                                fullByte = fullByte.Substring(8, fullByte.Length - 8);
                             }
-                           
+
                         }
                     }
                 }
-                AddToFile(dataFile, data);
-                dataFile.Close();
+                */
             }
-
-
-
-
         }
     }
 }

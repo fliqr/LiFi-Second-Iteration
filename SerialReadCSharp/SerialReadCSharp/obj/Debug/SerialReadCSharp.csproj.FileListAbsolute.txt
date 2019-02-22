@@ -10,3 +10,10 @@ C:\Users\Mike\Documents\Arduino\IEEE Hackathon\Fliqr\SerialReadCSharp\SerialRead
 C:\Users\Mike\Documents\Arduino\IEEE Hackathon\Fliqr\SerialReadCSharp\SerialReadCSharp\bin\Debug\SerialReadCSharp.exe
 C:\Users\Mike\Documents\Arduino\IEEE Hackathon\Fliqr\SerialReadCSharp\SerialReadCSharp\bin\Debug\SerialReadCSharp.pdb
 C:\Users\Mike\Documents\Arduino\IEEE Hackathon\Fliqr\SerialReadCSharp\SerialReadCSharp\obj\Debug\SerialReadCSharp.csprojResolveAssemblyReference.cache
+D:\Users\mike\Documents\[school]\Indipendant projects\Fliqr\SerialReadCSharp\SerialReadCSharp\bin\Debug\SerialReadCSharp.exe.config
+D:\Users\mike\Documents\[school]\Indipendant projects\Fliqr\SerialReadCSharp\SerialReadCSharp\bin\Debug\SerialReadCSharp.exe
+D:\Users\mike\Documents\[school]\Indipendant projects\Fliqr\SerialReadCSharp\SerialReadCSharp\bin\Debug\SerialReadCSharp.pdb
+D:\Users\mike\Documents\[school]\Indipendant projects\Fliqr\SerialReadCSharp\SerialReadCSharp\obj\Debug\SerialReadCSharp.csprojAssemblyReference.cache
+D:\Users\mike\Documents\[school]\Indipendant projects\Fliqr\SerialReadCSharp\SerialReadCSharp\obj\Debug\SerialReadCSharp.csproj.CoreCompileInputs.cache
+D:\Users\mike\Documents\[school]\Indipendant projects\Fliqr\SerialReadCSharp\SerialReadCSharp\obj\Debug\SerialReadCSharp.exe
+D:\Users\mike\Documents\[school]\Indipendant projects\Fliqr\SerialReadCSharp\SerialReadCSharp\obj\Debug\SerialReadCSharp.pdb

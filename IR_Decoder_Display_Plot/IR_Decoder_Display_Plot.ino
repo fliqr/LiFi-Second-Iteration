@@ -1,4 +1,3 @@
-#include <Filter.h>
 
 int irInput;
 int intervalCounter;
@@ -7,7 +6,7 @@ int timevalue = 400;
 int inputArray[100];
 int filtered;
 
-ExponentialFilter<long> ADCFilter(2, 0);
+//ExponentialFilter<long> ADCFilter(2, 0);
 
 void setup() {
   // put your setup code here, to run once:
@@ -19,8 +18,8 @@ void setup() {
 
 void loop() {
   irInput = analogRead(A0);
-  ADCFilter.Filter(irInput);
-  filtered = ADCFilter.Current();
+  //ADCFilter.Filter(irInput);
+  //filtered = ADCFilter.Current();
   
   for(int i = 0; i < 100; i++){
     inputArray[i] = analogRead(A0);
