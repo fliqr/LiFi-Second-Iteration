@@ -13,12 +13,14 @@ public class DisplayArduinoOutput
     {
         SerialPort arduinoOutput = new SerialPort();
         arduinoOutput.BaudRate = 115200;
-        arduinoOutput.PortName = "COM7";
+        arduinoOutput.PortName = "COM9";
         arduinoOutput.Open();
+        int fullRead;
+        
 
         while (true)
         {
-            Console.WriteLine(arduinoOutput.ReadExisting());
+            Console.WriteLine(arduinoOutput.ReadLine());
         }
 
 

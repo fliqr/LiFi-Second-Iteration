@@ -2,21 +2,9 @@ int solarInput;
 int intervalCounter;
 String inputString = "";
 int inputStringIndex = 0;
-int cutoffValue = 600;            //This value changes depending on the light of the room
+int cutoffValue = 750;            //This value changes depending on the light of the room
 int startBit = 0;
-bool codeIsDone = false;
-
-
-//USE THIS 
-//USE THIS
-//USE THIS 
-//USE THIS
-//USE THIS 
-//USE THIS
-//USE THIS 
-//USE THIS
-//USE THIS 
-//USE THIS
+int codeIsDone = false;
 
 void setup() {
   // put your setup code here, to run once:
@@ -25,6 +13,8 @@ void setup() {
 }
 
 void loop() {
+
+  
     //sequence is starting. this is the time of the startBit
     while(analogRead(A0) < cutoffValue){
         intervalCounter++;
@@ -35,7 +25,7 @@ void loop() {
 
     
     //general code for the rest of the signal
-    while(intervalCounter <= startBit && startBit > 30){
+    while(intervalCounter <= startBit && startBit > 40){
         intervalCounter = 0;
         //high signal
         

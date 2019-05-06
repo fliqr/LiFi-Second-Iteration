@@ -17,15 +17,10 @@ void setup() {
 }
 
 void loop() {
-  irInput = analogRead(A0);
-  //ADCFilter.Filter(irInput);
-  //filtered = ADCFilter.Current();
-  
-  for(int i = 0; i < 100; i++){
-    inputArray[i] = analogRead(A0);
-  }
-  for(int i = 0; i < 100; i++){
-    Serial.println(inputArray[i]);
-  }
+  irInput = analogRead(A0);                           
+  //byte eightBits = irInput / 4;
+  //Serial.println(eightBits, BIN);
+  Serial.println(irInput);
+
 }
 

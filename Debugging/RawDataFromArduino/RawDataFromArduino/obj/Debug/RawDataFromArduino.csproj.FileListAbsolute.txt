@@ -3,3 +3,10 @@ C:\Users\Mike\Documents\Arduino\IEEE Hackathon\RawDataFromArduino\RawDataFromArd
 C:\Users\Mike\Documents\Arduino\IEEE Hackathon\RawDataFromArduino\RawDataFromArduino\bin\Debug\RawDataFromArduino.pdb
 C:\Users\Mike\Documents\Arduino\IEEE Hackathon\RawDataFromArduino\RawDataFromArduino\obj\Debug\RawDataFromArduino.exe
 C:\Users\Mike\Documents\Arduino\IEEE Hackathon\RawDataFromArduino\RawDataFromArduino\obj\Debug\RawDataFromArduino.pdb
+D:\Users\mike\Documents\[school]\Indipendant projects\Fliqr\Debugging\RawDataFromArduino\RawDataFromArduino\bin\Debug\RawDataFromArduino.exe.config
+D:\Users\mike\Documents\[school]\Indipendant projects\Fliqr\Debugging\RawDataFromArduino\RawDataFromArduino\bin\Debug\RawDataFromArduino.exe
+D:\Users\mike\Documents\[school]\Indipendant projects\Fliqr\Debugging\RawDataFromArduino\RawDataFromArduino\bin\Debug\RawDataFromArduino.pdb
+D:\Users\mike\Documents\[school]\Indipendant projects\Fliqr\Debugging\RawDataFromArduino\RawDataFromArduino\obj\Debug\RawDataFromArduino.csprojAssemblyReference.cache
+D:\Users\mike\Documents\[school]\Indipendant projects\Fliqr\Debugging\RawDataFromArduino\RawDataFromArduino\obj\Debug\RawDataFromArduino.csproj.CoreCompileInputs.cache
+D:\Users\mike\Documents\[school]\Indipendant projects\Fliqr\Debugging\RawDataFromArduino\RawDataFromArduino\obj\Debug\RawDataFromArduino.exe
+D:\Users\mike\Documents\[school]\Indipendant projects\Fliqr\Debugging\RawDataFromArduino\RawDataFromArduino\obj\Debug\RawDataFromArduino.pdb
