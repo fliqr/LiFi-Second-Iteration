@@ -16,7 +16,7 @@ namespace SerialReadCSharp
         public static String ConvertFromBinary(String binaryCodeFromArduino)
         {
             String data = "";
-            binaryCodeFromArduino = binaryCodeFromArduino.Substring(4);
+            //binaryCodeFromArduino = binaryCodeFromArduino.Substring(4);
 
             while(binaryCodeFromArduino.Length >= 8)
             {
@@ -35,7 +35,7 @@ namespace SerialReadCSharp
             try
             {
                 dataFile.Write(data);
-                Console.WriteLine("Writing" + data + "to file.");
+                Console.WriteLine("Writing " + data + " to file.");
             }
             catch (Exception e)
             {
@@ -52,7 +52,9 @@ namespace SerialReadCSharp
         static void Main(string[] args)
         {
             //var path = "C:\\Users\\Mike\\Documents\\Arduino\\IEEE Hackathon\\Data.txt";
-            var path = "D:\\Users\\mike\\Documents\\[school]\\Indipendant projects\\Fliqr\\Data.txt";
+            //var path = "D:\\Users\\mike\\Documents\\[school]\\Indipendant projects\\Fliqr\\Data.txt";
+            var fileName = "Data.txt";
+            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, fileName);
             SerialPort arduinoOut = new SerialPort();
             arduinoOut.BaudRate = 115200;
             arduinoOut.PortName = "COM9";
@@ -64,7 +66,7 @@ namespace SerialReadCSharp
             {
                 dataFromArduino = arduinoOut.ReadExisting();
                 fullByte += dataFromArduino;
-                //Console.WriteLine(dataFromArduino);
+                Console.WriteLine(dataFromArduino);
                 if (dataFromArduino.IndexOf("D") != -1)
                 {
                     AddToFile(path, ConvertFromBinary(fullByte.Substring(0, fullByte.IndexOf("D"))));

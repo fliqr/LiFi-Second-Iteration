@@ -12,6 +12,17 @@ namespace SerialReadCSharp
 {
     class Program
     {
+        
+        private static int startBitTime, zeroBitTime, oneBitTime, offBitTime;
+        private static int highValue, lowValue, cutoffValue;
+        private static bool isReady = false;
+
+        private static LinkedList<int> offTime;
+
+        public static int timeNow()
+        {
+            return int.Parse(DateTime.Now.ToString("ssffffff"));
+        }
 
         public static String ConvertFromBinary(String binaryCodeFromArduino)
         {
@@ -44,91 +55,97 @@ namespace SerialReadCSharp
             }
 
         }
+        
+
+        private static void calibrateMaxMin(SerialPort arduinoOut)
+        {
+
+            int timeStart = timeNow();
+
+            while ((timeStart - timeNow()) < 50000)
+            {
+                try
+                {
+                    int lightValue = int.Parse(arduinoOut.ReadLine());
+                    if (lightValue > highValue) highValue = lightValue;
+                    if (lightValue < lowValue) lowValue = lightValue;
+
+                    cutoffValue = (highValue + lowValue) / 2;
+                }
+                catch
+                {
+                    Console.WriteLine("No value");
+                }
+            }
+
+            Console.WriteLine("High value: " + highValue);
+            Console.WriteLine("Low value: " + lowValue);
+
+        }
+        
+        
+
+        private static void parseRawData(SerialPort arduinoOut)
+        {
+            int startTime = timeNow();
+            while (true)
+            {
+                int lightValue = int.Parse(arduinoOut.ReadLine());
+                
+            }
+        }
 
 
         static void Main(string[] args)
         {
+
+
+
+
             //var path = "C:\\Users\\Mike\\Documents\\Arduino\\IEEE Hackathon\\Data.txt";
             var path = "D:\\Users\\mike\\Documents\\[school]\\Indipendant projects\\Data.txt";
             SerialPort arduinoOut = new SerialPort();
             TextWriter dataFile = new StreamWriter(path, true);
             arduinoOut.BaudRate = 115200;
-            arduinoOut.PortName = "COM9";
+            arduinoOut.PortName = "COM10";
             arduinoOut.Open();
-            String fullByte = "";
-            int dataFromArduino = "";
 
-            int solarInput;
-            int intervalCounter;
-            String inputString = "";
-            int inputStringIndex = 0;
-            int cutoffValue = 750;            //This value changes depending on the light of the room
-            int startBit = 0;
-            bool codeIsDone = false;
+            offTime = new LinkedList<int>();
+            
+
+            long teeeeemp = DateTime.Now.Ticks;
+            long teeemp = DateTime.Now.Ticks;
+            Console.WriteLine(teeemp - teeeeemp);
+            
+
+            /**
+             * 
+             * 
+             * Conclusions:
+             * 1) The ADC on ANY arduino can only sample every 0.0003 seconds or 300us. This is due to the readADC function taking a long time to run. Doesnt matter the clock speed of the device
+             * 2) SerialPort.ReadExisting reads the current data in the stream.
+             * 3) THE STRING TO INT PARSE TAKES LIKE 0.03 SECONDS THATS WAY TOO FUCKING LONG
+             * 
+             * 
+             */
+            /*
+                   String[] temp = new string[100];
+                   String timeNow = DateTime.Now.ToString("ssffffff");
+                   for(int i = 0; i < temp.Length; i++)
+                   {
+                       temp[i] = arduinoOut.ReadLine();
+                   }
+                   String timeDone = DateTime.Now.ToString("ffffff");
+                   int totalTime = int.Parse(timeDone) - int.Parse(timeNow); 
+           */
 
 
-            while (true)
-            {
-                dataFromArduino = arduinoOut.ReadExisting();
-                //sequence is starting. this is the time of the startBit
-                while (dataFromArduino < cutoffValue)
-                {
-                    intervalCounter++;
-                }
-                startBit = intervalCounter;
-                //Serial.print(startBit);
-                //Serial.println("************");
 
-
-                //general code for the rest of the signal
-                while (intervalCounter <= startBit && startBit > 30)
-                {
-                    intervalCounter = 0;
-                    //high signal
-
-                    while (analogRead(A0) > cutoffValue)
-                    {
-                        intervalCounter++;
-                    }
-                    //Serial.print("On:");
-                    //Serial.println(intervalCounter);
-                    if (intervalCounter > startBit)
-                    {
-                        codeIsDone = true;
-                        break;
-                    }
-                    if (intervalCounter > 15)
-                    {
-                        Serial.print("1");
-                        inputString.concat("1");
-                    }
-                    else
-                    {
-
-                        Serial.print("0");
-                        inputString.concat("0");
-                    }
-
-                    intervalCounter = 0;
-
-                    while (analogRead(A0) <= cutoffValue)
-                    {
-                        intervalCounter++;
-                    }
-                    //Serial.print("Off:");
-                    //Serial.println(intervalCounter);
-                }
-                if (codeIsDone || intervalCounter > startBit)
-                {
-                    intervalCounter = 0;
-                    //Serial.println("Signal over");
-                    //Serial.println(inputString);
-                    Serial.print("D");
-                    inputString = "";
-                    //signal has ended
-                }
-
-            }
+            calibrateMaxMin(arduinoOut);
+            parseRawData(arduinoOut);
+            
         }
+
+        
     }
 }
