@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using System.IO.Ports;
 using System.IO;
 
@@ -13,11 +13,14 @@ namespace SerialReadCSharp
     class Program
     {
         
-        private static int startBitTime, zeroBitTime, oneBitTime, offBitTime;
-        private static int highValue, lowValue, cutoffValue;
+        private static int startBitTime = -1, oneBitTime = -1, offBitTime = -1;
+        private static int startBitTimeCutOff = 0, zeroOneBitTimeCutOff = 0;
+        private static int highValue = -1, lowValue, cutoffValue;
         private static bool isReady = false;
 
-        private static LinkedList<int> offTime;
+        private static String rawSerialInput = "";
+        private static List<int> inputValues;
+        private static StreamWriter dataFile;
 
         public static int timeNow()
         {
@@ -27,7 +30,6 @@ namespace SerialReadCSharp
         public static String ConvertFromBinary(String binaryCodeFromArduino)
         {
             String data = "";
-            binaryCodeFromArduino = binaryCodeFromArduino.Substring(4);
 
             while (binaryCodeFromArduino.Length >= 8)
             {
@@ -35,12 +37,10 @@ namespace SerialReadCSharp
 
                 binaryCodeFromArduino = binaryCodeFromArduino.Substring(8);
             }
-
-            Console.WriteLine(data);
             return data;
         }
 
-        public static void AddToFile(TextWriter dataFile, String data)
+        public static void AddToFile(String data)
         {
             try
             {
@@ -57,41 +57,210 @@ namespace SerialReadCSharp
         }
         
 
-        private static void calibrateMaxMin(SerialPort arduinoOut)
+        private static void calibrateMaxMin(int lightValue)
         {
+            if (lightValue > highValue) highValue = lightValue;
+            if (lightValue < lowValue) lowValue = lightValue;
 
-            int timeStart = timeNow();
-
-            while ((timeStart - timeNow()) < 50000)
-            {
-                try
-                {
-                    int lightValue = int.Parse(arduinoOut.ReadLine());
-                    if (lightValue > highValue) highValue = lightValue;
-                    if (lightValue < lowValue) lowValue = lightValue;
-
-                    cutoffValue = (highValue + lowValue) / 2;
-                }
-                catch
-                {
-                    Console.WriteLine("No value");
-                }
-            }
-
-            Console.WriteLine("High value: " + highValue);
-            Console.WriteLine("Low value: " + lowValue);
+            cutoffValue = (highValue + lowValue) / 2;
 
         }
+
+        private static bool isRising(int lastVal, int currentVal)
+        {
+            if (lastVal < cutoffValue && currentVal > cutoffValue)
+                return true;
+            return false;
+        }
+        private static bool isFalling(int lastVal, int currentVal)
+        {
+            if (lastVal > cutoffValue && currentVal < cutoffValue)
+                return true;
+            return false;
+        }
+
+        private static void updateOffBitTime(int offCount)
+        {
+            if(offCount > offBitTime)
+            {
+                offBitTime = offCount;
+                oneBitTime = offCount * 4;
+                zeroOneBitTimeCutOff = 5;
+                startBitTimeCutOff = oneBitTime * 6;
+            }
+        }
+
+        private static bool isSignal(int onCount)
+        {
+            if (onCount > startBitTimeCutOff)
+                return false;
+            return true;
+        }
+
+        private static bool isOne(int onCount)
+        {
+            if (onCount > zeroOneBitTimeCutOff)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
         
+        /***
+         * 
+         * For the first 40 values, calibrate the high low and threshold values of the signal.
+         * These will adapt 
+         * For the next 100 values, probe for an off value. If one occurs, calibate all timing values.
+         * 
+         */
+        private static void startup()
+        {
+            int lightvalue;
+            int lastVal;
+            int intervalCount = 0;
+            int dataPoints = inputValues.Count;
+
+            if(dataPoints > 40)
+            {
+                dataPoints = 40;
+            }
+            for (int i = 0; i < dataPoints; i++)
+            {
+                lightvalue = inputValues[i];
+                calibrateMaxMin(lightvalue);
+            }
+            lastVal = inputValues[0];
+            for (int i = 1; i < 100; i++)
+            {
+                lightvalue = inputValues[i];
+                calibrateMaxMin(lightvalue);
+
+                if(isRising(lastVal, lightvalue))
+                {
+                    updateOffBitTime(intervalCount);
+                    intervalCount = 1;
+                } else if (isFalling(lastVal, lightvalue))
+                {
+                    intervalCount = 1;
+                } else
+                {
+                    intervalCount++;
+                }
+
+                lastVal = lightvalue;
+            }
+            Console.WriteLine(cutoffValue);
+
+        }
+
+        private static void compileData()
+        {
+
+            int lightvalue;
+            int lastVal;
+            int intervalCount = 0;
+            int dataPoints = inputValues.Count;
+            int bitindex = 0;
+            int bitValue = 0;
+            List<char> finalData = new List<char>();
+
+            lastVal = inputValues[0];
+            //inputValues.RemoveAt(0);
+            for (int i = 1; i < inputValues.Count; i++)
+            {
+                lightvalue = inputValues[i];
+                //inputValues.RemoveAt(0);
+                calibrateMaxMin(lightvalue);
+
+                if (isRising(lastVal, lightvalue))
+                {
+                    intervalCount = 1;
+                }
+                else if (isFalling(lastVal, lightvalue))
+                {
+                    if (isSignal(intervalCount))
+                    {
+                        if (isOne(intervalCount))
+                        {
+                            bitValue += (int)(Math.Pow(2, bitindex));
+
+                            Console.Write("1");
+                        }
+                        else
+                        {
+                            Console.Write("0");
+                        }
+                        bitindex++;
+                        if(bitindex >= 8)
+                        {
+                            finalData.Add(Convert.ToChar(bitValue));
+                        }
+                    } else
+                    {
+                        AddToFile(finalData.ToString());
+                        Console.WriteLine(finalData.ToString());
+                    }
+                    intervalCount = 1;
+                }
+                else
+                {
+                    intervalCount++;
+                }
+
+                lastVal = lightvalue;
+            }
+        }
+
+
+        private static void parseString()
+        {
+            String[] splitted;
+            if (!rawSerialInput.Equals(""))
+            {
+                //convert the string from serial input to a list of ints
+                splitted = rawSerialInput.Split();
+                for (int i = 0; i < splitted.Length; i++)
+                {
+                    try
+                    {
+                        inputValues.Add(int.Parse(splitted[i]));
+                    }
+                    catch
+                    {
+                        //Console.WriteLine(splitted[i] + " is not parsable");
+                    }
+                }
+                //if the light values are not calibrated yet, calibte them
+                if (highValue == -1)
+                {
+                    startup();
+                } else
+                {
+                    compileData();
+                }
+
+            }
+        }
         
 
         private static void parseRawData(SerialPort arduinoOut)
         {
             int startTime = timeNow();
+            Thread parseStringThread = new Thread(new ThreadStart(parseString));
             while (true)
             {
-                int lightValue = int.Parse(arduinoOut.ReadLine());
-                
+                try
+                {
+                    rawSerialInput = arduinoOut.ReadExisting();
+                    parseString();
+                }
+                catch
+                {
+                    Console.WriteLine("Serial could not be read.");
+                }
             }
         }
 
@@ -99,25 +268,21 @@ namespace SerialReadCSharp
         static void Main(string[] args)
         {
 
-
-
-
             //var path = "C:\\Users\\Mike\\Documents\\Arduino\\IEEE Hackathon\\Data.txt";
-            var path = "D:\\Users\\mike\\Documents\\[school]\\Indipendant projects\\Data.txt";
+            //var path = "D:\\Users\\mike\\Documents\\[school]\\Indipendant projects\\Data.txt";
+            String path ="Data.txt";
             SerialPort arduinoOut = new SerialPort();
-            TextWriter dataFile = new StreamWriter(path, true);
+            dataFile = new StreamWriter(path);
+            inputValues = new List<int>();
             arduinoOut.BaudRate = 115200;
             arduinoOut.PortName = "COM10";
             arduinoOut.Open();
 
-            offTime = new LinkedList<int>();
+            parseRawData(arduinoOut);
+            
             
 
-            long teeeeemp = DateTime.Now.Ticks;
-            long teeemp = DateTime.Now.Ticks;
-            Console.WriteLine(teeemp - teeeeemp);
-            
-
+                //the value in Ticks represents the time IN 100 nanoseconds since 1.1.1970 but my computer clock is only about 10ms fast. 
             /**
              * 
              * 
@@ -139,13 +304,7 @@ namespace SerialReadCSharp
                    int totalTime = int.Parse(timeDone) - int.Parse(timeNow); 
            */
 
-
-
-            calibrateMaxMin(arduinoOut);
-            parseRawData(arduinoOut);
             
         }
-
-        
     }
 }
