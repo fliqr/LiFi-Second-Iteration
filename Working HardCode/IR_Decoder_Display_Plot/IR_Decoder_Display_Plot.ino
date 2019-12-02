@@ -14,18 +14,6 @@ void setup() {
   pinMode(A0, INPUT);
 }
 
-void ahh(){
-  
-  if(ind < len){
-    temp[ind] = analogRead(A0);
-    ind++;
-  }
-  for(int i = 0; i < len; i++){
-    Serial.println(temp[i]);
-  }
-  ind = 0;
-}
-
 void loop() {    
     Serial.println(analogRead(A0));
 }

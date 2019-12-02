@@ -12,11 +12,16 @@ namespace SerialReadCSharp
 {
     class Program
     {
-        
-        private static int startBitTime = -1, oneBitTime = -1, offBitTime = -1;
-        private static int startBitTimeCutOff = 0, zeroOneBitTimeCutOff = 0;
+
+        private static int zeroBitMultiplier = 2, oneBitMultiplier = 4, startBitMultiplier = 8;
+
+        private static int startBitTime = -1, zeroBitTime = -1, oneBitTime = -1, offBitTime = -1;
+        private static int zeroOneBitTimeCutOff = 11, startBitTimeCutOff = 25;
         private static int highValue = -1, lowValue, cutoffValue;
         private static bool isReady = false;
+        private static double offCountAvg = 0;
+        private static int offCountCount = 0;
+        private static int highestValueOfTheSensor = 1000;
 
         private static String rawSerialInput = "";
         private static List<int> inputValues;
@@ -59,7 +64,7 @@ namespace SerialReadCSharp
 
         private static void calibrateMaxMin(int lightValue)
         {
-            if (lightValue > highValue) highValue = lightValue;
+            if (lightValue > highValue && lightValue < highestValueOfTheSensor) highValue = lightValue;
             if (lightValue < lowValue) lowValue = lightValue;
 
             cutoffValue = (highValue + lowValue) / 2;
@@ -81,13 +86,19 @@ namespace SerialReadCSharp
 
         private static void updateOffBitTime(int offCount)
         {
-            if(offCount > offBitTime)
+            
+            if(offCountCount < 5)
             {
-                offBitTime = offCount;
-                oneBitTime = offCount * 4;
-                zeroOneBitTimeCutOff = 5;
-                startBitTimeCutOff = oneBitTime * 6;
+                offCountAvg = ((offCountAvg * offCountCount++) + offCount) / offCountCount;
+                return;
             }
+            offBitTime = (int)(offCountAvg);
+            zeroBitTime = offBitTime * zeroBitMultiplier;
+            oneBitTime = zeroBitTime * oneBitMultiplier;
+            startBitTime = zeroBitTime * startBitMultiplier;
+            zeroOneBitTimeCutOff = (zeroBitTime + oneBitTime) / 2;
+            startBitTimeCutOff = (int)((oneBitTime + startBitTime) * 0.45);
+
         }
 
         private static bool isSignal(int onCount)
@@ -122,10 +133,12 @@ namespace SerialReadCSharp
             int lastVal;
             int intervalCount = 0;
             int dataPoints = inputValues.Count;
+            Thread compileDataThread = new Thread(new ThreadStart(compileData));
 
-            if(dataPoints > 40)
+
+            if (dataPoints > 200)
             {
-                dataPoints = 40;
+                dataPoints = 200;
             }
             for (int i = 0; i < dataPoints; i++)
             {
@@ -133,6 +146,7 @@ namespace SerialReadCSharp
                 calibrateMaxMin(lightvalue);
             }
             lastVal = inputValues[0];
+            /*
             for (int i = 1; i < 100; i++)
             {
                 lightvalue = inputValues[i];
@@ -152,7 +166,9 @@ namespace SerialReadCSharp
 
                 lastVal = lightvalue;
             }
+            */
             Console.WriteLine(cutoffValue);
+            compileDataThread.Start();
 
         }
 
@@ -163,54 +179,64 @@ namespace SerialReadCSharp
             int lastVal;
             int intervalCount = 0;
             int dataPoints = inputValues.Count;
-            int bitindex = 0;
+            int bitindex = 7;
             int bitValue = 0;
             List<char> finalData = new List<char>();
 
             lastVal = inputValues[0];
-            //inputValues.RemoveAt(0);
-            for (int i = 1; i < inputValues.Count; i++)
-            {
-                lightvalue = inputValues[i];
-                //inputValues.RemoveAt(0);
-                calibrateMaxMin(lightvalue);
+            inputValues.RemoveAt(0);
+            while (true) {
+                if (inputValues.Count > 0)
+                {
+                    lightvalue = inputValues[0];
+                    inputValues.RemoveAt(0);
+                    calibrateMaxMin(lightvalue);
 
-                if (isRising(lastVal, lightvalue))
-                {
-                    intervalCount = 1;
-                }
-                else if (isFalling(lastVal, lightvalue))
-                {
-                    if (isSignal(intervalCount))
+                    if (isRising(lastVal, lightvalue))
                     {
-                        if (isOne(intervalCount))
+                        intervalCount = 1;
+                    }
+                    else if (isFalling(lastVal, lightvalue))
+                    {
+                        if (isSignal(intervalCount))
                         {
-                            bitValue += (int)(Math.Pow(2, bitindex));
+                            if (isOne(intervalCount))
+                            {
+                                bitValue += (int)(Math.Pow(2, bitindex));
 
-                            Console.Write("1");
+                                Console.Write("1");
+                            }
+                            else
+                            {
+                                Console.Write("0");
+                            }
+                            bitindex--;
+                            if (bitindex <=-1)
+                            {
+                                finalData.Add(Convert.ToChar(bitValue));
+                                bitValue = 0;
+                                bitindex = 7;
+                            }
                         }
                         else
                         {
-                            Console.Write("0");
+                            String finalDataString = "";
+                            for (int i = 0; i < finalData.Count; i++) {
+                                finalDataString += finalData[i];
+                            }
+                            AddToFile(finalDataString);
+                            Console.WriteLine(finalDataString);
+                            finalData.Clear();
                         }
-                        bitindex++;
-                        if(bitindex >= 8)
-                        {
-                            finalData.Add(Convert.ToChar(bitValue));
-                        }
-                    } else
-                    {
-                        AddToFile(finalData.ToString());
-                        Console.WriteLine(finalData.ToString());
+                        intervalCount = 1;
                     }
-                    intervalCount = 1;
-                }
-                else
-                {
-                    intervalCount++;
-                }
+                    else
+                    {
+                        intervalCount++;
+                    }
 
-                lastVal = lightvalue;
+                    lastVal = lightvalue;
+                }
             }
         }
 
@@ -224,23 +250,23 @@ namespace SerialReadCSharp
                 splitted = rawSerialInput.Split();
                 for (int i = 0; i < splitted.Length; i++)
                 {
-                    try
+                    if (splitted[i] != "")
                     {
-                        inputValues.Add(int.Parse(splitted[i]));
-                    }
-                    catch
-                    {
-                        //Console.WriteLine(splitted[i] + " is not parsable");
+                        try
+                        {
+                            inputValues.Add(int.Parse(splitted[i]));
+                        }
+                        catch
+                        {
+                            Console.WriteLine(splitted[i] + " is not parsable");
+                        }
                     }
                 }
                 //if the light values are not calibrated yet, calibte them
                 if (highValue == -1)
                 {
                     startup();
-                } else
-                {
-                    compileData();
-                }
+                } 
 
             }
         }
@@ -249,7 +275,6 @@ namespace SerialReadCSharp
         private static void parseRawData(SerialPort arduinoOut)
         {
             int startTime = timeNow();
-            Thread parseStringThread = new Thread(new ThreadStart(parseString));
             while (true)
             {
                 try
